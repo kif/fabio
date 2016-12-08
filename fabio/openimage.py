@@ -48,6 +48,7 @@ logger = logging.getLogger("openimage")
 from .fabioutils import FilenameObject, exists, BytesIO, six
 from .fabioimage import FabioImage
 from . import fabioformats
+import contextlib
 
 if six.PY2:
     bytes = str
@@ -110,28 +111,88 @@ def do_magic(byts, filename):
     raise Exception("Could not interpret magic string")
 
 
+class OpenImage(object):
+    """Implements the context manager
+
+    """
+    def __init__(self, filename, frame=None):
+        """Constructor of the class
+
+        :param filename: string or file-object
+        :param frame: frame number as int
+        """
+        self.filename = filename
+        self.frame = frame
+        self.obj = None
+
+    def open(self):
+        """Actually open the filename and return the object
+        """
+
+        if isinstance(self.filename, FilenameObject):
+            try:
+                logger.debug("Attempting to open %s" % (self.filename.tostring()))
+                obj = _openimage(self.filename.tostring())
+                logger.debug("Attempting to read frame %s from %s with reader %s" % (self.frame, self.filename.tostring(), obj.classname))
+                obj = obj.read(self.filename.tostring(), self.frame)
+            except Exception as ex:
+                logger.debug("Exception %s, trying name %s" % (ex, self.filename.stem))
+                obj = _openimage(self.filename.stem)
+                logger.debug("Reading frame %s from %s" % (self.filename.num, self.filename.stem))
+                obj.read(self.filename.stem, frame=self.filename.num)
+        else:
+            logger.debug("Attempting to open %s" % (self.filename))
+            obj = _openimage(self.filename)
+            logger.debug("Attempting to read frame %s from %s with reader %s" % (self.frame, self.filename, obj.classname))
+            obj = obj.read(obj.filename, self.frame)
+        return obj
+
+    def __enter__(self):
+        """When entering the context manager, call open
+        """
+        self.obj = self.open()
+        return self.obj
+
+    def __exit__(self):
+        """Explicitly close the opened file underneath
+        """
+        if self.obj is not None:
+            if self.obj._file is not None:
+                opened_file = self.obj._file
+                if hasattr(opened_file, "closed") and not opened_file.closed:
+                    opened_file.close()
+
+@contextlib.contextmanager
 def openimage(filename, frame=None):
     """ Try to open an image """
-    if isinstance(filename, FilenameObject):
-        try:
-            logger.debug("Attempting to open %s" % (filename.tostring()))
-            obj = _openimage(filename.tostring())
-            logger.debug("Attempting to read frame %s from %s with reader %s" % (frame, filename.tostring(), obj.classname))
-            obj = obj.read(filename.tostring(), frame)
-        except Exception as ex:
-            # multiframe file
-            # logger.debug( "DEBUG: multiframe file, start # %d"%(
-            #    filename.num)
-            logger.debug("Exception %s, trying name %s" % (ex, filename.stem))
-            obj = _openimage(filename.stem)
-            logger.debug("Reading frame %s from %s" % (filename.num, filename.stem))
-            obj.read(filename.stem, frame=filename.num)
-    else:
-        logger.debug("Attempting to open %s" % (filename))
-        obj = _openimage(filename)
-        logger.debug("Attempting to read frame %s from %s with reader %s" % (frame, filename, obj.classname))
-        obj = obj.read(obj.filename, frame)
-    return obj
+    return OpenImage(filename, frame).open()
+#     if isinstance(filename, FilenameObject):
+#         try:
+#             logger.debug("Attempting to open %s" % (filename.tostring()))
+#             obj = _openimage(filename.tostring())
+#             logger.debug("Attempting to read frame %s from %s with reader %s" % (frame, filename.tostring(), obj.classname))
+#             obj = obj.read(filename.tostring(), frame)
+#         except Exception as ex:
+#             # multiframe file
+#             # logger.debug( "DEBUG: multiframe file, start # %d"%(
+#             #    filename.num)
+#             logger.debug("Exception %s, trying name %s" % (ex, filename.stem))
+#             obj = _openimage(filename.stem)
+#             logger.debug("Reading frame %s from %s" % (filename.num, filename.stem))
+#             obj.read(filename.stem, frame=filename.num)
+#     else:
+#         logger.debug("Attempting to open %s" % (filename))
+#         obj = _openimage(filename)
+#         logger.debug("Attempting to read frame %s from %s with reader %s" % (frame, filename, obj.classname))
+#         obj = obj.read(obj.filename, frame)
+#
+#     yield obj
+#
+#     if obj is not None:
+#         if obj._file is not None:
+#             opened_file = obj._file
+#             if hasattr(opened_file, "closed") and not opened_file.closed:
+#                 opened_file.close()
 
 
 def openheader(filename):

@@ -195,6 +195,7 @@ class TifImage(fabioimage.FabioImage):
 
         :param str fname: name of the file to save the image to
         """
+        self.check_filename(fname)
         with TiffIO.TiffIO(fname, mode="w") as tiff_file:
             tiff_file.writeImage(self.data,
                                  info=self.header,

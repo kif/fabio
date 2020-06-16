@@ -123,6 +123,7 @@ class BinaryImage(FabioImage):
         logger.info('estimation of the offset value (bytes): %s', totsize - size)
 
     def write(self, fname):
+        self.check_filename(fname)
         with open(fname, mode="wb") as outfile:
             outfile.write(self.data.tobytes())
 

@@ -268,9 +268,11 @@ class CbfImage(FabioImage):
 
     def write(self, fname):
         """
-        write the file in CBF format
+        Write the file in CBF format
+        
         :param str fname: name of the file
         """
+        self.check_filename(fname)
         if self.data is None:
             raise RuntimeError("CBF image contains no data")
         # The shape is provided by self.data

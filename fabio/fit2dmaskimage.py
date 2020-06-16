@@ -120,8 +120,10 @@ class Fit2dMaskImage(FabioImage):
 
     def write(self, fname):
         """
-        Try to write a file
+        Write the mask with the fit2d format
+        :param fname: name of the output file
         """
+        self.check_filename(fname)
         dim2, dim1 = self.shape
         header = bytearray(b"\x00" * 1024)
         header[0] = 77  # M

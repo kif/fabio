@@ -200,7 +200,7 @@ class DtrekImage(FabioImage):
         """
         Write d*TREK format
         """
-
+        self.check_filename(fname)
         # From specification
         HEADER_START = b"{\n"
         HEADER_END = b"}\n\x0C\n"

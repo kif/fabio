@@ -166,6 +166,7 @@ class NumpyImage(fabioimage.FabioImage):
 
         :param fname: name of the file
         """
+        self.check_filename(fname)
         if self.dataset is None and self.data is not None:
             self.dataset = self.data
         numpy.save(fname, self.dataset)

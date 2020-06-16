@@ -204,6 +204,7 @@ class Mar345Image(FabioImage):
     def write(self, fname):
         """Try to write mar345 file.
         It uses a MIT implementation of the CCP4 (LGPL) PCK1 algo from JPA"""
+        self.check_filename(fname)
         bin_headers = self.binary_header()
         asc_headers = self.ascii_header("\n", 4096 - len(bin_headers)).encode("ASCII")
         hotpixels = self._high_intensity_pixel_records()

@@ -441,6 +441,7 @@ class OxdImage(FabioImage):
         Only TY1 compressed images is currently possible
         :param fname: output filename
         """
+        self.check_filename(fname)
         if self.header.get("Compression") != "TY1":
             logger.warning("Enforce TY1 compression")
             self.header["Compression"] = "TY1"

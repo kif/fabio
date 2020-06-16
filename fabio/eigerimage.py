@@ -151,9 +151,11 @@ class EigerImage(FabioImage):
 
     def write(self, fname):
         """
-        try to write image
+        Write image like the Eiger detector
+        
         :param fname: name of the file
         """
+        self.check_filename(fname)
         if len(self.dataset.shape) == 2:
             self.dataset.shape = (1,) + self.dataset.shape
         with h5py.File(fname, mode="w") as h5file:

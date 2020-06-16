@@ -282,6 +282,7 @@ class Bruker100Image(BrukerImage):
         Write a bruker image
 
         """
+        self.check_filename(fname)
         if numpy.issubdtype(self.data.dtype, float):
             if "LINEAR" in self.header:
                 try:

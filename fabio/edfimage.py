@@ -1257,8 +1257,11 @@ class EdfImage(fabioimage.FabioImage):
         check we can write zipped also
         mimics that fabian was writing uint16 (we sometimes want floats)
 
+        :param fname: output file name
         :param force_type: can be numpy.uint16 or simply "float"
+        :param fit2dMode: start indexes at 1, not 0
         """
+        self.check_filename(fname)
         # correct for bug #27: read all data before opening the file in write mode
         if fname == self.filename:
             [(frame.header, frame.data) for frame in self._frames]

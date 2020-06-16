@@ -393,6 +393,9 @@ class FabioImage(_FabioArray):
     RESERVED_HEADER_KEYS = []
     # List of header keys which are reserved by the file format
 
+    DEFAULT_EXTENSIONS = []
+    # list of default compatible extensions
+
     @classmethod
     @deprecation.deprecated
     def factory(cls, name):
@@ -663,7 +666,10 @@ class FabioImage(_FabioArray):
     def write(self, fname):
         """
         To be overwritten - write the file
+        :param fname: name of the file to be written
+        :return: None
         """
+        self.check_filename(fname)
         if isinstance(fname, fabioutils.PathTypes):
             if not isinstance(fname, fabioutils.StringTypes):
                 fname = str(fname)
@@ -673,6 +679,14 @@ class FabioImage(_FabioArray):
     def save(self, fname):
         'wrapper for write'
         self.write(fname)
+
+    def check_filename(self, fname):
+        """Helper function which emits a warning if the extension of the filename is inconsistent with the format"""
+        ext = (os.path.splitext(fname)[-1]).lower()
+        if ext.startswith("."):
+            ext = ext[1:]
+        if ext not in self.DEFAULT_EXTENSIONS:
+            logger.warning("Extension of file %s is not consistent with format %s", fname, self.__class__.__name__)
 
     def readheader(self, filename):
         """

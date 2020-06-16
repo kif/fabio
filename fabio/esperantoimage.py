@@ -180,7 +180,7 @@ class EsperantoImage(FabioImage):
 
         :param fname: name of the file
         """
-
+        self.check_filename(fname)
         # create header
         if "IMAGE" not in self.header:  # create image entry
             dtype_info = '"%s"' % self.format
